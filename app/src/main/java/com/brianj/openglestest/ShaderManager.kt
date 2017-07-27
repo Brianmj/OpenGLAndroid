@@ -18,8 +18,6 @@ class ShaderManager
 
     init {
         programMap = mutableMapOf()
-
-
     }
 
     fun buildGraphicsProgram(vertexFile: String, fragmentFile: String): UUID
@@ -33,7 +31,6 @@ class ShaderManager
 
     private fun doBuildGraphicsProgram(vertexFile: String, fragmentFile: String): Int
     {
-
         val vertexShader = buildVertex(vertexFile)
         val fragmentShader = buildFragment(fragmentFile)
 
@@ -63,7 +60,6 @@ class ShaderManager
         val buffer = ByteBuffer.allocate(size.toInt())
         val bytesRead = channel.read(buffer)
 
-
         if(bytesRead != size.toInt())
             throw Exception("Not all bytes could be read. Bytes read: $bytesRead. size of file: $size")
 
@@ -71,15 +67,6 @@ class ShaderManager
 
         channel.close()
         return source
-    }
-
-    private fun compileShader(shaderType: Int, shaderSource: String): Int
-    {
-        val shader = GLES20.glCreateShader(shaderType)
-        GLES20.glShaderSource(shader, shaderSource)
-        GLES20.glCompileShader(shader)
-
-        return shader
     }
 
     private fun buildVertex(vertexFile: String): Int
@@ -104,9 +91,18 @@ class ShaderManager
         return fragmentShader
     }
 
-    private fun linkProgram(program: Int)
+    private fun compileShader(shaderType: Int, shaderSource: String): Int
     {
+        val shader = GLES20.glCreateShader(shaderType)
+        GLES20.glShaderSource(shader, shaderSource)
+        GLES20.glCompileShader(shader)
 
+        return shader
+    }
+
+    private fun linkProgram(programId: Int)
+    {
+        GLES20.glLinkProgram(programId)
     }
 
     private fun checkShaderStatus(shader: Int, shaderType: String)
@@ -138,6 +134,7 @@ class ShaderManager
     }
 
     private fun generateProgram(): Int = GLES20.glCreateProgram()
+
     private fun attachShader(program: Int, shader: Int) {
         GLES20.glAttachShader(program, shader)
     }
@@ -156,10 +153,14 @@ class ShaderManager
         return uuid
     }
 
-    private fun removeProgramFromManager(uuid: UUID)
+    private fun removeProgramFromManager(uuid: UUID): Int?
     {
         val programId = programMap[uuid]
+        programId?.let {
+            programMap.remove(uuid)
+        }
 
+        return programId
     }
 
 }
