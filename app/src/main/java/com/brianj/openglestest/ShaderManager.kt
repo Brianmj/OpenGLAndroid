@@ -44,6 +44,9 @@ class ShaderManager
         linkProgram(programId)
         checkProgramStatus(programId, "Graphics program")
 
+        detachAndDeleteShader(programId, vertexShader)
+        detachAndDeleteShader(programId, fragmentShader)
+
         return programId
     }
 
@@ -139,12 +142,23 @@ class ShaderManager
         GLES20.glAttachShader(program, shader)
     }
 
+    private fun detachAndDeleteShader(programId: Int, shaderId: Int)
+    {
+        GLES20.glDetachShader(programId, shaderId)
+        GLES20.glDeleteShader(shaderId)
+    }
+
     private fun addProgramToManager(programId: Int): UUID
     {
         val uuid = UUID.randomUUID()
         programMap[uuid] = programId
 
         return uuid
+    }
+
+    private fun removeProgramFromManager(uuid: UUID)
+    {
+
     }
 
 }
