@@ -22,10 +22,13 @@ class ShaderManager
 
     }
 
-    fun buildGraphicsProgram(vertexFile: String, fragmentFile: String)
+    fun buildGraphicsProgram(vertexFile: String, fragmentFile: String): UUID
     {
         val programId = doBuildGraphicsProgram(vertexFile, fragmentFile)
         // we have a valid programId.
+        val uuid = addProgramToManager(programId)
+
+        return uuid
     }
 
     private fun doBuildGraphicsProgram(vertexFile: String, fragmentFile: String): Int
@@ -134,6 +137,14 @@ class ShaderManager
     private fun generateProgram(): Int = GLES20.glCreateProgram()
     private fun attachShader(program: Int, shader: Int) {
         GLES20.glAttachShader(program, shader)
+    }
+
+    private fun addProgramToManager(programId: Int): UUID
+    {
+        val uuid = UUID.randomUUID()
+        programMap[uuid] = programId
+
+        return uuid
     }
 
 }
