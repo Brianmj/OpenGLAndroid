@@ -158,6 +158,7 @@ class ShaderManager
 
     private fun removeProgramFromManager(uuid: UUID)
     {
+        val programId = programMap[uuid]
 
     }
 
