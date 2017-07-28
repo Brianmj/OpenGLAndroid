@@ -1,18 +1,25 @@
 package com.brianj.openglestest
 
+import android.app.Activity
+import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES31
 import java.util.*
 import android.opengl.GLES32.*
+import java.io.BufferedReader
 import java.io.FileInputStream
+import java.io.InputStream
+import java.io.InputStreamReader
 import java.nio.ByteBuffer
 import java.nio.channels.Channel
+import java.nio.channels.Channels
 import java.nio.channels.FileChannel
+import java.nio.channels.ReadableByteChannel
 
 /**
  * Created by brianj on 7/21/17.
  */
-class ShaderManager
+class ShaderManager(val context: Context)
 {
     private var programMap: MutableMap<UUID, Int>
 
@@ -20,23 +27,23 @@ class ShaderManager
         programMap = mutableMapOf()
     }
 
-    fun buildGraphicsProgram(vertexFile: String, fragmentFile: String): UUID
+    fun buildGraphicsProgramAssets(vertexFile: String, fragmentFile: String): UUID
     {
-        val programId = doBuildGraphicsProgram(vertexFile, fragmentFile)
+        val programId = doBuildGraphicsProgramAssets(vertexFile, fragmentFile)
         // we have a valid programId.
         val uuid = addProgramToManager(programId)
 
         return uuid
     }
 
-    private fun doBuildGraphicsProgram(vertexFile: String, fragmentFile: String): Int
+    private fun doBuildGraphicsProgramAssets(vertexFile: String, fragmentFile: String): Int
     {
         val vertexShader = buildVertex(vertexFile)
         val fragmentShader = buildFragment(fragmentFile)
 
         val programId = generateProgram()
-        attachShader(programId, vertexShader)
-        attachShader(programId, fragmentShader)
+        attachShaderToProgram(programId, vertexShader)
+        attachShaderToProgram(programId, fragmentShader)
 
         linkProgram(programId)
         checkProgramStatus(programId, "Graphics program")
@@ -47,16 +54,17 @@ class ShaderManager
         return programId
     }
 
-    private fun openChannelToFile(fileName: String): FileChannel
+    private fun openStreamToFile(fileName: String): InputStream
     {
-        val fos = FileInputStream(fileName)
-        val channel = fos.channel
-        return channel
+        val inputStream = context.assets.open(fileName)
+
+        return inputStream
+
     }
 
-    private fun readSource(channel: FileChannel): String
+    private fun readSource(inputStream: InputStream): String
     {
-        val size = channel.size()
+        /*val size = channel.size()
         val buffer = ByteBuffer.allocate(size.toInt())
         val bytesRead = channel.read(buffer)
 
@@ -65,28 +73,31 @@ class ShaderManager
 
         val source = String(buffer.array())
 
-        channel.close()
+        channel.close()*/
+
+        val bufferedReader = inputStream.bufferedReader()
+        val source = bufferedReader.readText()
         return source
     }
 
     private fun buildVertex(vertexFile: String): Int
     {
-        val vertexChannel = openChannelToFile(vertexFile)
-        val vertexSource = readSource(vertexChannel)
+        val vertexStream = openStreamToFile(vertexFile)
+        val vertexSource = readSource(vertexStream)
         val vertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexSource)
         checkShaderStatus(vertexShader, "Vertex")
-        vertexChannel.close()
+        vertexStream.close()
 
         return vertexShader
     }
 
     private fun buildFragment(fragmentFile: String): Int
     {
-        val fragmentChannel = openChannelToFile(fragmentFile)
-        val fragmentSource = readSource(fragmentChannel)
+        val fragmentStream = openStreamToFile(fragmentFile)
+        val fragmentSource = readSource(fragmentStream)
         val fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource)
         checkShaderStatus(fragmentShader, "Fragment")
-        fragmentChannel.close()
+        fragmentStream.close()
 
         return fragmentShader
     }
@@ -131,11 +142,22 @@ class ShaderManager
             val resultString = "$programType: $errorString"
             throw RuntimeException(resultString)
         }
+
+        GLES20.glValidateProgram(program)
+        val validationStatus = IntArray(1)
+        GLES20.glGetProgramiv(program, GLES20.GL_VALIDATE_STATUS, validationStatus, 0)
+
+        if(validationStatus[0] <= GL_FALSE)
+        {
+            val errorString = GLES20.glGetProgramInfoLog(program)
+            val resultString = "$programType: $errorString"
+            throw RuntimeException(resultString)
+        }
     }
 
     private fun generateProgram(): Int = GLES20.glCreateProgram()
 
-    private fun attachShader(program: Int, shader: Int) {
+    private fun attachShaderToProgram(program: Int, shader: Int) {
         GLES20.glAttachShader(program, shader)
     }
 

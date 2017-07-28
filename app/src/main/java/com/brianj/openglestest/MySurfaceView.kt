@@ -17,15 +17,17 @@ import javax.microedition.khronos.opengles.GL10
  * Created by brianj on 6/21/17.
  */
 
-class MyRenderer : GLSurfaceView.Renderer
+class MyRenderer(ctx: Context) : GLSurfaceView.Renderer
 {
     val TAG = "MyRenderer"
     val colorBuffer = FloatArray(4)
     val depthBuffer = FloatArray(1)
+    val context = ctx
     override fun onDrawFrame(gl: GL10?) {
         Log.d(TAG, "onFrameDraw")
         glClearBufferfv(GL_DEPTH, 0, depthBuffer, 0)
         glClearBufferfv(GL_COLOR, 0, colorBuffer, 0)
+
 
 
 
@@ -42,6 +44,9 @@ class MyRenderer : GLSurfaceView.Renderer
         colorBuffer[0] = 0.0f; colorBuffer[1] = 1.0f; colorBuffer[2] = 0.5f; colorBuffer[3] = 1.0f
         depthBuffer[0] = 1.0f
 
+        val manager = ShaderManager(context)
+        manager.buildGraphicsProgramAssets("myglsl.vert", "fragment.frag")
+
 
 
 
@@ -54,6 +59,6 @@ public class MySurfaceView constructor(context: Context, attrs: AttributeSet) : 
     init {
         setEGLContextClientVersion(3)
         setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-        setRenderer(MyRenderer())
+        setRenderer(MyRenderer(context))
     }
 }
