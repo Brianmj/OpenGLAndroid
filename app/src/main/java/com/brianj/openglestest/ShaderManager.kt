@@ -27,6 +27,15 @@ class ShaderManager(val context: Context)
         programMap = mutableMapOf()
     }
 
+    fun buildGraphicsProgramRaw(vertexFileId: Int, fragmentFileId: Int): UUID
+    {
+        val programId = doBuildGraphicsProgramRaw(vertexFileId, fragmentFileId)
+        // we have a valid programId.
+        val uuid = addProgramToManager(programId)
+
+        return uuid
+    }
+
     fun buildGraphicsProgramAssets(vertexFile: String, fragmentFile: String): UUID
     {
         val programId = doBuildGraphicsProgramAssets(vertexFile, fragmentFile)
@@ -34,6 +43,24 @@ class ShaderManager(val context: Context)
         val uuid = addProgramToManager(programId)
 
         return uuid
+    }
+
+    private fun doBuildGraphicsProgramRaw(vertexFileId: Int, fragmentFileId: Int): Int
+    {
+        val vertexShader = buildVertex(vertexFileId)
+        val fragmentShader = buildFragment(fragmentFileId)
+
+        val programId = generateProgram()
+        attachShaderToProgram(programId, vertexShader)
+        attachShaderToProgram(programId, fragmentShader)
+
+        linkProgram(programId)
+        checkProgramStatus(programId, "Graphics program")
+
+        detachAndDeleteShader(programId, vertexShader)
+        detachAndDeleteShader(programId, fragmentShader)
+
+        return programId
     }
 
     private fun doBuildGraphicsProgramAssets(vertexFile: String, fragmentFile: String): Int
@@ -59,7 +86,13 @@ class ShaderManager(val context: Context)
         val inputStream = context.assets.open(fileName)
 
         return inputStream
+    }
 
+    private fun openStreamToFile(resource: Int): InputStream
+    {
+        val inputStream = context.resources.openRawResource(resource)
+
+        return inputStream
     }
 
     private fun readSource(inputStream: InputStream): String
@@ -91,9 +124,31 @@ class ShaderManager(val context: Context)
         return vertexShader
     }
 
+    private fun buildVertex(vertexFileId: Int): Int
+    {
+        val vertexStream = openStreamToFile(vertexFileId)
+        val vertexSource = readSource(vertexStream)
+        val vertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexSource)
+        checkShaderStatus(vertexShader, "Vertex")
+        vertexStream.close()
+
+        return vertexShader
+    }
+
     private fun buildFragment(fragmentFile: String): Int
     {
         val fragmentStream = openStreamToFile(fragmentFile)
+        val fragmentSource = readSource(fragmentStream)
+        val fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource)
+        checkShaderStatus(fragmentShader, "Fragment")
+        fragmentStream.close()
+
+        return fragmentShader
+    }
+
+    private fun buildFragment(fragmentFileId: Int): Int
+    {
+        val fragmentStream = openStreamToFile(fragmentFileId)
         val fragmentSource = readSource(fragmentStream)
         val fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource)
         checkShaderStatus(fragmentShader, "Fragment")
