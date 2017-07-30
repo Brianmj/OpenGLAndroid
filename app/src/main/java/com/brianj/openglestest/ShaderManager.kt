@@ -47,7 +47,8 @@ class ShaderManager(val context: Context)
 
     fun activateProgram(uuid: UUID)
     {
-
+        val programId = retrieveProgram(uuid)
+        GLES20.glUseProgram(programId)
     }
 
     private fun doBuildGraphicsProgramRaw(vertexFileId: Int, fragmentFileId: Int): Int
@@ -243,6 +244,16 @@ class ShaderManager(val context: Context)
         }
 
         return programId
+    }
+
+    private fun retrieveProgram(uuid: UUID): Int
+    {
+        val programId = programMap[uuid]
+
+        if(programId == null)
+            throw RuntimeException("Invalid uuid: $uuid")
+
+        return programId!!
     }
 
 }
