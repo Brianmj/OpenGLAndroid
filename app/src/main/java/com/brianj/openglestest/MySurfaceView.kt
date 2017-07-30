@@ -45,7 +45,8 @@ class MyRenderer(ctx: Context) : GLSurfaceView.Renderer
         depthBuffer[0] = 1.0f
 
         val manager = ShaderManager(context)
-        manager.buildGraphicsProgramAssets("myglsl.vert", "fragment.frag")
+        //manager.buildGraphicsProgramAssets("myglsl.vert", "fragment.frag")
+        manager.buildGraphicsProgramRaw(R.raw.vertex, R.raw.fragment)
 
 
 
