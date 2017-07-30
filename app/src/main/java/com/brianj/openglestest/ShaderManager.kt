@@ -45,6 +45,11 @@ class ShaderManager(val context: Context)
         return uuid
     }
 
+    fun activateProgram(uuid: UUID)
+    {
+
+    }
+
     private fun doBuildGraphicsProgramRaw(vertexFileId: Int, fragmentFileId: Int): Int
     {
         val vertexShader = buildVertex(vertexFileId)
