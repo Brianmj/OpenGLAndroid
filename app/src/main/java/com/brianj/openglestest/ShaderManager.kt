@@ -248,12 +248,17 @@ class ShaderManager(val context: Context)
 
     private fun retrieveProgram(uuid: UUID): Int
     {
-        val programId = programMap[uuid]
+        val programId = programMap.get(uuid)
+
+
+        programId?.let {
+            return it
+        }
 
         if(programId == null)
             throw RuntimeException("Invalid uuid: $uuid")
 
-        return programId!!
+        return programId
     }
 
 }
