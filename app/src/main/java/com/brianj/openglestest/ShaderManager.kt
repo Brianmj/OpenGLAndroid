@@ -51,6 +51,11 @@ class ShaderManager(val context: Context)
         GLES20.glUseProgram(programId)
     }
 
+    fun disableProgram()
+    {
+        GLES20.glUseProgram(0)
+    }
+
     private fun doBuildGraphicsProgramRaw(vertexFileId: Int, fragmentFileId: Int): Int
     {
         val vertexShader = buildVertex(vertexFileId)
