@@ -2,7 +2,7 @@ package com.brianj.openglestest
 
 import android.content.Context
 import android.opengl.GLES10
-
+import android.opengl.GLES20
 
 
 import android.opengl.GLES32.*
@@ -30,13 +30,11 @@ class MyRenderer(ctx: Context) : GLSurfaceView.Renderer
 
 
 
-
-
-
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         Log.d(TAG, "onSurfaceChanged")
+        GLES20.glViewport(0, 0, width, height)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
