@@ -23,6 +23,9 @@ class MyRenderer(ctx: Context) : GLSurfaceView.Renderer
     val colorBuffer = FloatArray(4)
     val depthBuffer = FloatArray(1)
     val context = ctx
+    var viewportWidth: Int = 0
+    var viewportHeight: Int = 0
+
     override fun onDrawFrame(gl: GL10?) {
         Log.d(TAG, "onFrameDraw")
         glClearBufferfv(GL_DEPTH, 0, depthBuffer, 0)
@@ -34,6 +37,8 @@ class MyRenderer(ctx: Context) : GLSurfaceView.Renderer
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         Log.d(TAG, "onSurfaceChanged")
+        viewportHeight = height
+        viewportWidth = width
         GLES20.glViewport(0, 0, width, height)
     }
 
