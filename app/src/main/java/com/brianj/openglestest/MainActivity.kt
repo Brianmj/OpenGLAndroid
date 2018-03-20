@@ -11,18 +11,11 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 
-class MainActivity : AppCompatActivity(), Choreographer.FrameCallback {
+class MainActivity : AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        Choreographer.getInstance().postFrameCallback(this)
-
-
-    }
-
-    override fun doFrame(frameTimeNanos: Long) {
 
     }
 }
